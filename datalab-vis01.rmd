@@ -1,0 +1,53 @@
+---
+title: "datalab-vis01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(here)
+library(tidyverse)
+library(extrafont)
+```
+
+```{r}
+hot_dogs <- read_csv(here::here("data", "hot_dog_contest.csv"), 
+    col_types = cols(
+      gender = col_factor(levels = NULL)
+    ))
+glimpse(hot_dogs)
+```
+
+
+```{r}
+hot_dogs <- hot_dogs %>% 
+  mutate(post_ifoce = year >= 1997) %>% 
+  filter(year >= 1981 & gender == 'male')
+hot_dogs
+```
+
+
+```{r}
+ggplot(hot_dogs, aes(x = year, y = num_eaten)) + 
+  geom_col()
+```
+
+
+```{r}
+ggplot(hot_dogs, aes(x = year, y = num_eaten)) + 
+  geom_col() +
+  labs(x = "Year", y = "Hot Dogs and Buns Consumed") +
+  ggtitle("Nathan's Hot Dog Eating Contest Results, 1981-2017")
+```
+
+```{r}
+ggplot(hot_dogs, aes(x = year, y = num_eaten)) + 
+  geom_col(colour = "white") + 
+  labs(x = "Year", y = "Hot Dogs and Buns Consumed") +
+  ggtitle("Nathan's Hot Dog Eating Contest Results, 1981-2017")
+```
+
