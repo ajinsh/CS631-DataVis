@@ -1,0 +1,67 @@
+---
+title: "datalab-lotrvis04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+##Author:Ajinkya Shinde
+
+```{r include=FALSE}
+#Load necessary library packages
+library(tidyverse)
+library(dplyr)
+```
+
+###Ref:[Exercises Assigned From](https://github.com/jennybc/lotr-tidy/blob/master/data/Female.csv)
+##01-Introduction
+
+```{r}
+#Read the csv file for tidying
+lotr_1<-read_csv(url("https://raw.githubusercontent.com/jennybc/lotr-tidy/master/data/The_Fellowship_Of_The_Ring.csv"))
+lotr_2<-read_csv(url("https://raw.githubusercontent.com/jennybc/lotr-tidy/master/data/The_Two_Towers.csv"))
+lotr_3<-read_csv(url("https://raw.githubusercontent.com/jennybc/lotr-tidy/master/data/The_Return_Of_The_King.csv"))
+
+#Bind the csv file
+lotr<-bind_rows(lotr_1,lotr_2,lotr_3)
+lotr_tidy<- lotr  %>% 
+  gather(Gender,Words,Female:Male) %>% 
+  arrange(Film,Race,Gender)
+
+lotr_tidy
+
+```
+
+
+
+
+* What's the total number of words spoken by male hobbits?
+```{r}
+lotr_tidy %>% 
+  filter(Race=="Hobbit",Gender=="Male") %>% 
+  count(Gender,wt=Words)
+```
+
+
+* Does a certain <mark>Race</mark> dominate a movie? Does the dominant <mark>Race</mark> differ across the movies?
+```{r}
+lotr_tidy %>% 
+  count(Film,Race,wt=Words) %>% 
+  rename(Words=n)
+
+```
+
+##02-Gathering Data
+
+```{r}
+lotr_female<-read.csv(url("https://raw.githubusercontent.com/jennybc/lotr-tidy/master/data/Female.csv"))
+lotr_male<-read.csv(url("https://raw.githubusercontent.com/jennybc/lotr-tidy/master/data/Male.csv"))
+lotr_gender<-bind_rows(lotr_female,lotr_male)
+```
+```{r}
+lotr_gender %>% 
+  gather(Race,Words,Elf,Hobbit,Man)
+```
+
+

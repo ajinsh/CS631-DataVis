@@ -1,0 +1,40 @@
+---
+title: "datalab-ch2_vis04"
+author: "Ajinkya Shinde"
+date: "26 April 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(gapminder)
+```
+
+```{r}
+by_continent<-gapminder %>% 
+  group_by(continent) %>% 
+  summarize(Max_GDPPerCap=max(gdpPercap),Min_GDPPerCap=min(gdpPercap))
+
+
+```
+
+```{r}
+by_country_contin<-gapminder %>% 
+mutate(totGdp=gdpPercap/pop) %>% 
+  group_by(country,continent) %>% 
+  summarize(totGdp=sum(totGdp),pop=sum(pop)) %>% 
+  arrange(country,continent) 
+
+gdpPerCap_countr_cont<- by_country_contin %>% 
+  mutate(gdpPerCap=totGdp*pop)
+  
+
+ggplot((gdpPerCap_countr_cont %>% select(country,continent,gdpPerCap)), aes(x = gdpPerCap_countr_cont)) + #no y needed for visualization of univariate distributions
+  geom_histogram(fill = "white", colour = "black") + #easier to see for me
+  scale_x_log10()+
+  facet_wrap(~ country)   
+  
+```
+

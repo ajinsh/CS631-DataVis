@@ -1,0 +1,175 @@
+---
+title: "datalabvis03"
+output: html_document
+---
+#Lab 02
+##Author:Ajinkya Shinde
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(here) # to set file path if working from local file
+library(tidyverse) # 
+
+library(readr)
+moma <- read_csv(here::here("data", "artworks-cleaned.csv"))
+moma 
+
+```
+
+
+**1.How many paintings (rows) are in moma? How many variables (columns) are in moma?
+Ans 
+No. of paintings (rows) in moma are 2253
+No. of variables (columns) in moma are  23**
+
+
+
+
+```{r}
+moma %>% 
+  select(title,year_acquired,artist) %>%
+  arrange(year_acquired)
+```
+**2.What is the first painting acquired by MoMA? Which year? Which artist? What title?
+Ans 
+The first painting with title "House by the railroad" acquired by moma in the year 1930 by the artist Edward Hopper**
+
+
+
+
+
+```{r}
+moma %>% 
+  select(title,year_created,artist) %>%
+  arrange(year_created)
+```
+**3.What is the oldest painting in the collection? Which year? Which artist? What title?
+Ans 
+The oldest painting with title "Landscape at Daybreak" is in the collection, created in the year 1930 by the artist Odilon Redon**
+
+
+
+
+```{r}
+distinct(moma %>% 
+           select(artist))
+```
+
+
+**4.How many distinct artists are there?
+Ans 979 distinct artists present in moma collection**
+
+
+```{r}
+count(moma,vars=artist,sort= TRUE) 
+```
+**5.Which artist has the most paintings in the collection? How many paintings are by this artist?
+Pablo Piccaso has the most paintings with count of 55**
+
+
+
+```{r}
+count(moma,artist_gender)
+```
+**6.How many paintings by male vs female artists?
+Ans Paintings made by female artists are  252
+and paintings made by male artists are 1991**
+
+
+```{r}
+
+c_artist_g <-count(moma,artist_gender,artist)
+count(c_artist_g,artist_gender)
+```
+**How many artists of each gender are there?
+Ans Total female artists are 143 and male artists are 837**
+
+
+```{r}
+count(moma,year_acquired,sort=TRUE)
+```
+**In what year were the most paintings acquired?
+Ans During 1985,the most paintings were acquired with count equal to 86**
+
+
+
+```{r}
+count(moma,year_created,sort=TRUE)
+
+```
+
+**In what year were the most paintings Created?
+Ans  During 1977,the most paintings were created with count equal to 57**
+
+
+```{r}
+moma %>%
+  filter(artist_gender == "Female" , n_female_artists == 1) %>% 
+  select(year_acquired,year_created,artist,title) %>% 
+  arrange(year_acquired)
+
+```
+
+
+**In what year was the first painting by a (solo) female artist acquired? When was that painting created? Which artist? What title?
+Ans In the year 1937, the first solo female painting was acquired and created in the year 1912 by artist Natalia Goncharova with painting title "Landscape, 47"**
+
+```{r}
+ggplot(moma, aes(x=year_created, y=year_acquired)) + geom_point(alpha=0.05) + labs(x="Year Created", y ="Year Acquired" ) +ggtitle("MOMA keeps its Collection Current")+geom_abline(color="red")
+```
+
+
+
+
+**Plot year painted vs year acquired**
+
+```{r}
+f_moma <- moma %>% 
+  filter(num_artists == 1)
+
+ggplot(f_moma, aes(x=year_created, y=year_acquired)) + geom_point(alpha=0.05) + labs(x="Year Created", y ="Year Acquired" ) +ggtitle("MOMA keeps its Collection Current")+geom_abline(color="red") + facet_wrap(~artist_gender)
+
+```
+
+**Facet by artist gender**
+
+
+  
+```{r}
+f_moma <- moma %>% 
+  filter(height_cm<600,width_cm<760) %>% 
+  mutate(cat_color = case_when (
+    (height_cm/width_cm) < 1 ~ "Taller than wide",
+    (height_cm/width_cm) > 1 ~ "Wider than tall",
+    (height_cm/width_cm) == 1 ~ "Perfect square"
+  ))
+
+ggplot(f_moma, aes(x = width_cm, y = height_cm, colour = cat_color)) +
+  geom_point(alpha = .5) +
+  ggtitle("MoMA Paintings, Tall and Wide") +
+  scale_colour_manual(name = "",
+                      values = c("gray50", "#FF9900", "#B14CF0")) +      labs(x = "Width", y = "Height") 
+```
+
+
+**Plot painting dimensions**
+```{r}
+f_moma<-moma %>%
+  filter(artist_gender == "Female" | artist_gender == "Male") %>% 
+  mutate(area=height_cm * width_cm) %>%   
+  select(year_created,artist_gender,area) %>% 
+  group_by(year_created,artist_gender) %>% 
+  summarize(tot_area=sum(area))
+
+ggplot(f_moma, aes(x = year_created, y = tot_area, colour = artist_gender)) +
+  geom_point(alpha = .5) +
+  ggtitle("MoMA Paintings, Female artists vs Male artist painting area  distribution") +
+ labs(x = "Year Created", y = "Total Area of painting in cm^2") +scale_y_log10()
+```
+
+**It seems that until 1910 , the total_area of paintings(including men and women) is under 10^5 magitude.However, then the total_area of paintings crossed the 10^5 border after 1910 and then crossed 1million boundary in 1940. Also, the total area of paintings crossed million for women approx around 1960-1975**
+
+
+
